@@ -29,8 +29,14 @@ playwright-report/
 test-results/
 .vite/
 
+# Local Codex operating context (intentionally never published)
+.agent/
+.agents/
+.codex/
+.logs/
+AGENTS.md
+
 # Local data and logs
-.logs/*.local.*
 *.log
 postgres-data/
 redis-data/
