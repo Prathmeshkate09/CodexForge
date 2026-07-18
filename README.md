@@ -94,8 +94,6 @@ For Firebase Hosting to reach Cloud Run in staging/production, build the SPA wit
 | `infra/terraform/` | Reviewable Google Cloud baseline; no environment is provisioned by default. |
 | `docker/` | Container definitions. |
 | `scripts/` | Cross-platform local quality gates. |
-| `.codex/` | Concise operating context for future Codex sessions. |
-| `.agents/` | Specialist review checklists; `AGENTS.md` is authoritative. |
 
 ## Canonical documentation
 
