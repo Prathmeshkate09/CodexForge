@@ -44,3 +44,13 @@ This file records meaningful workspace changes. Exact change history belongs in 
 - **Migration notes:** None.
 - **Breaking changes:** None; local Windows verification is now reliable and checks more source files.
 - **Validation:** Full `./scripts/verify.ps1` passed: frontend format/lint/type/Vitest (15 tests)/production build/Playwright (2 tests); backend dependency sync/Ruff/Black/mypy/pytest (29 tests); Docker Compose configuration. Expected non-failing React Router future-flag and Node color-environment warnings were emitted during browser tests.
+
+## 2026-07-18 - Initial GitHub history reconciliation
+
+- **User request:** Complete the work and push it to GitHub.
+- **Reasoning summary:** The remote branch advanced with two user-authored MIT license commits after the local initialization. The push rejection was handled by fetch-and-merge, never force-push; the remote content had no application overlap.
+- **Files created:** None by Codex; `LICENSE` and `LICENSE.md` are preserved from the remote history.
+- **Files modified:** Git history and project operating logs.
+- **Files deleted:** None.
+- **Migration notes:** None.
+- **Breaking changes:** None.

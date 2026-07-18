@@ -37,3 +37,12 @@
 - **Problems solved:** PowerShell's `npm.ps1` wrapper reconstructed variable-based invocations incorrectly, so the verifier now deliberately calls `npm.cmd`/`npx.cmd`. Backend test source is now checked with the same Ruff/Black configuration as application code.
 - **Remaining work:** External runtime checks still require Docker Linux engine, Terraform CLI, and remote CI after push. Product milestones remain GitHub App verification and read-only evidence collection.
 - **Next recommended task:** Configure development identity integrations and implement the GitHub App callback/evidence collector under the existing approval-first controls.
+
+## 2026-07-18 - Initial history reconciliation
+
+- **Prompt summary:** Publish the completed CodexForge foundation to GitHub without overwriting newer remote work.
+- **Files changed:** Preserved the remote MIT license history, adding `LICENSE` and `LICENSE.md` through a clean unrelated-history merge.
+- **Architecture decisions:** None; the merge only preserves the user's existing license commits alongside the new application foundation.
+- **Problems solved:** The first push was safely rejected because the remote had newer commits. Fetching showed only the user's MIT license files, so both histories were retained rather than force-pushing.
+- **Remaining work:** Confirm remote CI results for container and Terraform checks once GitHub Actions processes the pushed history.
+- **Next recommended task:** Review the first GitHub Actions run, then configure the development GitHub App and Firebase identity project.
