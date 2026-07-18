@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+.venv/
+__pycache__/
+*.lock
+infra/terraform/.terraform/
+infra/terraform/*.tfstate*

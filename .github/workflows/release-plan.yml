@@ -1,0 +1,80 @@
+name: Reviewed release plan
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment protected by GitHub Environments
+        required: true
+        type: choice
+        options: [development, staging, production]
+      confirmation:
+        description: Type the exact target environment name to acknowledge this is a plan only
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  validate-intent:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require exact confirmation
+        env:
+          TARGET: ${{ inputs.environment }}
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          if [ "$TARGET" != "$CONFIRMATION" ]; then
+            echo "Confirmation must exactly equal the selected environment."
+            exit 1
+          fi
+
+  terraform-plan:
+    needs: validate-intent
+    runs-on: ubuntu-24.04
+    environment: ${{ inputs.environment }}
+    defaults:
+      run:
+        working-directory: infra/terraform
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_TERRAFORM_SERVICE_ACCOUNT }}
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
+        with:
+          terraform_wrapper: false
+      - name: Validate environment configuration
+        env:
+          PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+          REGION: ${{ vars.GCP_REGION }}
+          TF_STATE_BUCKET: ${{ vars.GCP_TF_STATE_BUCKET }}
+          TF_STATE_PREFIX: ${{ vars.GCP_TF_STATE_PREFIX }}
+        run: |
+          test -n "$PROJECT_ID"
+          test -n "$REGION"
+          test -n "$TF_STATE_BUCKET"
+          test -n "$TF_STATE_PREFIX"
+      - name: Initialize protected remote state
+        env:
+          TF_STATE_BUCKET: ${{ vars.GCP_TF_STATE_BUCKET }}
+          TF_STATE_PREFIX: ${{ vars.GCP_TF_STATE_PREFIX }}
+        run: terraform init -backend-config="bucket=$TF_STATE_BUCKET" -backend-config="prefix=$TF_STATE_PREFIX"
+      - name: Create reviewed plan only
+        env:
+          TF_VAR_project_id: ${{ vars.GCP_PROJECT_ID }}
+          TF_VAR_region: ${{ vars.GCP_REGION }}
+          TF_VAR_environment: ${{ inputs.environment }}
+        run: terraform plan -out=tfplan
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: terraform-plan-${{ inputs.environment }}
+          path: infra/terraform/tfplan
+          retention-days: 3
+
+# This workflow never applies Terraform or deploys a Cloud Run revision. A separate,
+# reviewed delivery workflow may be added only after environment, rollback, migration,
+# and approval policies are proven.

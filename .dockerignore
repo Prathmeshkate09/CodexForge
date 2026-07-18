@@ -1,0 +1,32 @@
+# Never transfer local credentials, source-control metadata, or generated files
+# to a Docker build context.
+.git
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+service-account*.json
+
+# Dependency caches and build output are rebuilt inside image stages.
+node_modules
+frontend/node_modules
+frontend/dist
+backend/.venv
+**/__pycache__
+.pytest_cache
+.mypy_cache
+.ruff_cache
+coverage
+playwright-report
+test-results
+
+# Local state and editor files are not image inputs.
+.terraform
+*.tfstate
+*.tfstate.*
+postgres-data
+redis-data
+.idea
+.vscode

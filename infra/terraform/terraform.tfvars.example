@@ -1,0 +1,32 @@
+# Copy to an untracked terraform.tfvars file or configure CI environment variables.
+# Do not put credentials, private keys, database URLs, Redis URLs, or API keys here.
+
+project_id  = "your-gcp-project-id"
+region      = "asia-south1"
+environment = "development"
+
+# Restrict federation to the deployment repository.
+github_repository = "Prathmeshkate09/CodexForge"
+github_wif_ref    = "refs/heads/main"
+
+# Configure the production identity provider before enabling Cloud Run.
+# Firebase Auth example values use your actual Firebase project ID.
+jwt_jwks_url = "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com"
+jwt_issuer   = "https://securetoken.google.com/your-firebase-project-id"
+jwt_audience = "your-firebase-project-id"
+cors_allowed_origins = [
+  "https://your-firebase-project-id.web.app",
+  "https://your-firebase-project-id.firebaseapp.com",
+]
+
+# Leave false until immutable images, secret versions, IAM, and rollout procedures
+# have been reviewed. Enabling this flag with empty image values is invalid by policy.
+enable_runtime_services = false
+enable_worker_service   = false
+# Set true only after Firebase/OAuth2 issuer, audience, CORS, and API bearer
+# validation have been verified in staging. This does not make API routes anonymous.
+allow_public_api_invocation = false
+
+# Example only when runtime services are ready:
+# api_image    = "asia-south1-docker.pkg.dev/your-gcp-project-id/codexforge-development-containers/api@sha256:..."
+# worker_image = "asia-south1-docker.pkg.dev/your-gcp-project-id/codexforge-development-containers/worker@sha256:..."
