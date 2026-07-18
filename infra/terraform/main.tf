@@ -7,7 +7,7 @@ locals {
   # WIF pool IDs/display names have a 32-character limit, and GCS bucket names
   # must be globally unique and at most 63 characters. Keep the externally
   # visible names bounded even when callers choose the longest valid prefix.
-  github_wif_pool_id  = "${substr(local.resource_prefix, 0, 20)}-${substr(sha1(local.resource_prefix), 0, 8)}"
+  github_wif_pool_id   = "${substr(local.resource_prefix, 0, 20)}-${substr(sha1(local.resource_prefix), 0, 8)}"
   artifact_bucket_name = "${substr(local.resource_prefix, 0, 20)}-${substr(sha1("${var.project_id}:${local.resource_prefix}"), 0, 12)}-artifacts"
   # VPC connector names are especially short (hyphens count twice); use a
   # deterministic 20-character-effective name rather than the full prefix.
@@ -430,7 +430,7 @@ resource "google_cloud_run_v2_service" "api" {
       }
 
       env {
-        name = "CODEXFORGE_ENVIRONMENT"
+        name  = "CODEXFORGE_ENVIRONMENT"
         value = var.environment
       }
       env {
@@ -502,8 +502,8 @@ resource "google_cloud_run_v2_service" "worker" {
   location = var.region
   # Cloud Tasks reaches this service using OIDC. It remains unauthenticated only
   # if an explicit allUsers IAM binding is added, which this configuration never does.
-  ingress  = "INGRESS_TRAFFIC_ALL"
-  labels   = local.labels
+  ingress = "INGRESS_TRAFFIC_ALL"
+  labels  = local.labels
 
   template {
     service_account = google_service_account.worker.email
@@ -530,7 +530,7 @@ resource "google_cloud_run_v2_service" "worker" {
       }
 
       env {
-        name = "CODEXFORGE_ENVIRONMENT"
+        name  = "CODEXFORGE_ENVIRONMENT"
         value = var.environment
       }
       env {
