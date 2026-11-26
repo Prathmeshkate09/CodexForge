@@ -11,12 +11,17 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-RUN groupadd --system --gid 10001 codexforge \
+RUN apt-get update \
+    && apt-get upgrade -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /usr/local/lib/python3.13/site-packages/pip* /usr/local/bin/pip* \
+    && groupadd --system --gid 10001 codexforge \
     && useradd --system --uid 10001 --gid codexforge --create-home codexforge
 
 COPY --from=uv /uv /uvx /bin/
 COPY backend/pyproject.toml backend/uv.lock backend/README.md ./
-RUN uv sync --frozen --no-dev --no-install-project
+RUN uv sync --frozen --no-dev --no-install-project \
+    && uv cache clean
 
 COPY backend/alembic.ini ./
 COPY backend/alembic ./alembic
