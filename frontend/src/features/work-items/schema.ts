@@ -21,7 +21,7 @@ export const workItemFormSchema = z
   .superRefine((value, context) => {
     if (value.kind === "failed_ci" && !value.failedCiUrl) {
       context.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         path: ["failedCiUrl"],
         message: "A failed CI run URL is required for this request type.",
       });
