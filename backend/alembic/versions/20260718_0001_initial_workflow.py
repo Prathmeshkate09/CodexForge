@@ -42,18 +42,6 @@ approval_decision = sa.Enum("approved", "rejected", name="approval_decision")
 
 
 def upgrade() -> None:
-    bind = op.get_bind()
-    for enum in (
-        project_connection_status,
-        work_item_kind,
-        work_item_status,
-        run_stage,
-        run_status,
-        approval_action,
-        approval_decision,
-    ):
-        enum.create(bind, checkfirst=True)
-
     op.create_table(
         "repositories",
         sa.Column("id", sa.Uuid(), nullable=False),

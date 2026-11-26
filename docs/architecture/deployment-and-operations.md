@@ -2,12 +2,12 @@
 
 ## Environment model
 
-CodexForge uses separate development, staging, and production environments. Local development uses Docker Compose plus host-run frontend/backend processes. Staging and production are planned as Terraform-managed Google Cloud environments. This repository does not provision or deploy an environment by itself.
+CodexForge uses separate development, staging, and production environments. Local development defaults to one isolated Docker Compose project containing PostgreSQL, Redis, migrations, FastAPI, and the Nginx-served SPA. Host-run frontend/backend processes are optional specialist workflows only. Staging and production are planned as Terraform-managed Google Cloud environments. This repository does not provision or deploy an environment by itself.
 
 | Component | Local | Staging/production |
 | --- | --- | --- |
-| SPA | Vite development server | Firebase Hosting |
-| API | FastAPI process/container | Cloud Run |
+| SPA | Nginx container (Vite is optional host-only tooling) | Firebase Hosting |
+| API | FastAPI container | Cloud Run |
 | Worker | Not implemented | Disabled until a task receiver and isolation policy are implemented/reviewed |
 | PostgreSQL | Docker Compose | Cloud SQL PostgreSQL |
 | Redis | Docker Compose | Memorystore Redis |

@@ -57,8 +57,9 @@ CODEXFORGE_JWT_AUDIENCE=<firebase-project-id>
 CODEXFORGE_JWT_JWKS_URL=https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com
 ```
 
-Then run `docker compose up --build` and open `http://127.0.0.1:5173`. The Firebase variables are public browser
-configuration, not server secrets; do not place a service-account key, JWT signing secret, GitHub credential, OpenAI
-key, or database password in a `VITE_*` variable. Without Firebase configuration, the container UI intentionally stops
-at its authentication configuration state. The development-token flow remains available only for a host-run Vite
-development server, never for the production Docker bundle.
+Then run `docker compose up --build` from the repository root and open `http://127.0.0.1:5173`. Compose first runs the
+reviewed Alembic migration job, then waits for the API health check before starting Nginx. The Firebase variables are
+public browser configuration, not server secrets; do not place a service-account key, JWT signing secret, GitHub
+credential, OpenAI key, or database password in a `VITE_*` variable. Without Firebase configuration, the container UI
+intentionally stops at its authentication configuration state. The development-token flow remains available only for a
+host-run Vite development server, never for the production Docker bundle.

@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Header, Request, status
 from fastapi.responses import JSONResponse
 
-from app.api.deps import PrincipalDep, SessionDep
-from app.core.errors import ConflictError
+from app.api.deps import PrincipalDep, SessionDep, get_app_settings
+from app.core.errors import ConflictError, NotFoundError
+from app.core.security import verify_development_identity_secret
 from app.schemas.workflow import ProjectCreate, ProjectRead
 from app.services.idempotency import IdempotencyService
 from app.services.workflow import WorkflowService
@@ -50,6 +52,28 @@ async def create_project(
     response_body = project.model_dump(mode="json")
     await idempotency.complete(
         reservation, status_code=status.HTTP_201_CREATED, response_body=response_body
+    )
+    await session.commit()
+    return project
+
+
+@router.post("/{project_id}/verify-dev", response_model=ProjectRead)
+async def verify_project_dev(
+    project_id: uuid.UUID,
+    request: Request,
+    session: SessionDep,
+    principal: PrincipalDep,
+    dev_key: Annotated[str | None, Header(alias="X-Dev-Identity-Key")] = None,
+) -> ProjectRead:
+    settings = get_app_settings(request)
+    if not settings.allows_development_features:
+        raise NotFoundError("The requested resource was not found.")
+    verify_development_identity_secret(settings, dev_key)
+    project = await WorkflowService(session).verify_project_development(
+        project_id,
+        actor_subject=principal.subject,
+        github_installation_id=1,
+        correlation_id=request.state.correlation_id,
     )
     await session.commit()
     return project

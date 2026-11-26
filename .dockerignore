@@ -3,6 +3,10 @@
 .git
 .env
 .env.*
+.codex
+.agents
+.logs
+AGENTS.md
 *.pem
 *.key
 *.p12

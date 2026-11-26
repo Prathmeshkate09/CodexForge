@@ -43,6 +43,20 @@ class WorkflowRepository:
         )
         return result.scalar_one_or_none()
 
+    async def get_projects_by_github_full_name(self, github_full_name: str) -> Sequence[Repository]:
+        result = await self._session.execute(
+            select(Repository).where(Repository.github_full_name == github_full_name)
+        )
+        return result.scalars().all()
+
+    async def get_projects_by_installation_id(
+        self, github_installation_id: int
+    ) -> Sequence[Repository]:
+        result = await self._session.execute(
+            select(Repository).where(Repository.github_installation_id == github_installation_id)
+        )
+        return result.scalars().all()
+
     async def get_work_item(
         self,
         work_item_id: uuid.UUID,

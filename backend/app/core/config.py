@@ -81,7 +81,7 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(
         env_prefix="CODEXFORGE_",
-        env_file=".env",
+        env_file=(".env", "../.env"),
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -106,6 +106,26 @@ class Settings(BaseSettings):
     openai_api_key: SecretStr | None = None
     openai_model: str = "gpt-5.6-sol"
     safety_identifier_salt: SecretStr | None = None
+    github_webhook_secret: SecretStr | None = None
+    github_app_id: int | None = None
+    github_private_key: SecretStr | None = None
+    github_private_key_path: str | None = None
+
+    def get_github_private_key_pem(self) -> str | None:
+        if self.github_private_key is not None:
+            raw_key = self.github_private_key.get_secret_value().strip()
+            if raw_key:
+                return raw_key.replace("\\n", "\n")
+        if self.github_private_key_path:
+            from pathlib import Path
+
+            key_path = Path(self.github_private_key_path)
+            if not key_path.is_absolute():
+                if not key_path.exists():
+                    key_path = Path(__file__).resolve().parents[3] / self.github_private_key_path
+            if key_path.is_file():
+                return key_path.read_text(encoding="utf-8")
+        return None
 
     @field_validator("jwt_jwks_url")
     @classmethod

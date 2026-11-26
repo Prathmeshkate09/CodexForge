@@ -44,6 +44,7 @@ class ProjectRead(BaseModel):
     )
     default_branch: str
     connection_status: Literal["active", "revoked", "pending"]
+    github_installation_id: int | None = None
     created_at: datetime
 
 
@@ -129,6 +130,35 @@ class ApprovalGateRead(BaseModel):
     comment: str | None = None
 
 
+class RepositoryEvidenceRead(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    path: str
+    start_line: int | None = None
+    end_line: int | None = None
+    commit_sha: str
+    rationale: str
+
+
+class PlanStepRead(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str
+    title: str
+    rationale: str
+    affected_paths: list[str] = Field(default_factory=list)
+
+
+class EvidenceBackedPlanRead(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    summary: str
+    steps: list[PlanStepRead] = Field(default_factory=list)
+    evidence: list[RepositoryEvidenceRead] = Field(default_factory=list)
+    risk_notes: list[str] = Field(default_factory=list)
+    rollback_notes: list[str] = Field(default_factory=list)
+
+
 class ExecutionRunRead(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -137,7 +167,7 @@ class ExecutionRunRead(BaseModel):
     work_item: WorkItemRead
     status: WorkItemStatus
     repository_commit_sha: str | None = None
-    plan: dict[str, object] | None = None
+    plan: EvidenceBackedPlanRead | dict[str, object] | None = None
     plan_approval: ApprovalGateRead
     pull_request_approval: ApprovalGateRead
     timeline: list[dict[str, object]] = Field(default_factory=list)

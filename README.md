@@ -36,37 +36,31 @@ Repository files, CI output, issue text, comments, and model output are untruste
 
 ## Local development
 
-Prerequisites: Node.js 22, Python 3.13+, `uv`, Docker Desktop or Docker Engine, and Git.
+Docker Desktop is the supported local runtime. PostgreSQL, Redis, the migration job, FastAPI, and the Nginx frontend all run in the isolated `codexforge` Compose project; no local PostgreSQL installation is needed.
 
-1. Create ignored local configuration files and replace the marked values. Keep the PostgreSQL password in the root and backend examples aligned.
+1. Start Docker Desktop, then create one ignored Docker configuration file from the repository root:
 
    ```powershell
    Copy-Item .env.example .env
-   Copy-Item backend/.env.example backend/.env
-   Copy-Item frontend/.env.example frontend/.env.local
    ```
 
-2. Start only the local dependencies, install the locked backend graph, and apply the reviewed migration manually.
+2. Replace the two marked secret values in `.env`, then start the complete stack:
 
    ```powershell
-   docker compose --env-file .env up -d postgres redis
-   Push-Location backend
-   uv sync --locked --all-groups
-   uv run alembic upgrade head
-   uv run uvicorn app.main:app --reload --port 8000
+   docker compose up --build
    ```
 
-3. In another terminal, configure Firebase Auth in `frontend/.env.local` (recommended) or set an explicitly issued short-lived local development token. Then start the frontend.
+   The one-time `codexforge-migrate` container applies Alembic migrations before the API starts. Open `http://127.0.0.1:5173` when all long-running containers are healthy. API documentation is available at `http://127.0.0.1:8000/docs`.
+
+3. Stop the stack without deleting its database:
 
    ```powershell
-   Push-Location frontend
-   npm ci
-   npm run dev
+   docker compose down
    ```
 
-The local frontend defaults to `/api/v1`, which Vite proxies to `http://127.0.0.1:8000`. Firebase configuration is public browser configuration, but GitHub, OpenAI, database, Redis, and cloud credentials must remain server-side. See [frontend setup](frontend/README.md) and [backend setup](backend/README.md) for the authentication details.
+PostgreSQL and Redis are intentionally private to Docker; they have no Windows host ports and therefore cannot conflict with other projects. The normal Docker frontend needs Firebase configuration in `.env` for Google sign-in. Without it, the UI deliberately shows its authentication configuration state. `backend/.env` and `frontend/.env.local` are optional host-run development files only; they are not required for the Docker path.
 
-To test the container images after the migration is applied, use `docker compose --env-file .env up --build backend frontend`. Application startup intentionally does not run Alembic.
+Read [Docker local development](docs/docker.md) for the architecture, environment variable reference, logs, rebuilds, database reset command, and troubleshooting. See [frontend setup](frontend/README.md) and [backend setup](backend/README.md) only when deliberately using host-run development.
 
 ## Verification
 
